@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>网站部署全流程操作指南</title>
+<meta name="description" content="从零部署网站到云服务器的完整流程：原理、购买 ECS、远程连接、部署代码、放行端口、域名备案、SSL 与站长平台收录。">
+<script>document.documentElement.className="js";</script>
+<style>
+:root{--bg:#0a1411;--bg2:#0d1916;--card:rgba(17,32,27,.66);--line:rgba(120,200,180,.16);
+--text:#e4f1ec;--muted:#9dbcb2;--accent:#2fd6a8;--accent2:#39c0ff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC","Source Han Sans SC","Noto Sans CJK SC",sans-serif;
+line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:var(--accent2);text-decoration:none;} a:hover{text-decoration:underline;}
+#progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;z-index:90;transition:width .12s linear;}
+.hero{position:relative;min-height:78vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px;
+background-image:linear-gradient(180deg,rgba(6,14,12,.55),rgba(10,20,17,.92)),url(assets/img/s1.jpg);background-size:cover;background-position:center;}
+.hero h1{font-size:clamp(34px,6vw,60px);letter-spacing:2px;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.6);}
+.hero p{margin-top:18px;color:#bfe6d8;font-size:clamp(15px,2vw,19px);max-width:720px;}
+.hero .meta{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.hero .meta span{border:1px solid rgba(120,200,180,.35);background:rgba(10,25,21,.5);padding:5px 14px;border-radius:999px;font-size:13px;color:#a9d8c9;}
+.layout{display:flex;max-width:1360px;margin:0 auto;padding:0 20px;gap:26px;}
+aside{width:232px;flex:0 0 232px;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;padding:34px 0 60px;}
+aside .tt{font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;padding-left:12px;}
+aside a{display:flex;gap:9px;align-items:baseline;padding:8px 12px;border-radius:8px;color:var(--muted);font-size:14px;border-left:2px solid transparent;}
+aside a span{color:rgba(120,200,180,.5);font-size:12px;font-variant-numeric:tabular-nums;}
+aside a:hover{background:rgba(120,200,180,.07);color:var(--text);text-decoration:none;}
+aside a.on{background:rgba(47,214,168,.12);color:#fff;border-left-color:var(--accent);}
+aside a.on span{color:var(--accent);}
+main{flex:1;min-width:0;max-width:940px;padding:34px 0 120px;}
+.chapter{scroll-margin-top:24px;}
+.ch-title{display:flex;align-items:baseline;gap:12px;font-size:clamp(22px,3vw,29px);color:#fff;margin:52px 0 6px;position:relative;}
+.ch-num{font-size:14px;color:var(--accent);letter-spacing:1px;font-variant-numeric:tabular-nums;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:16px 0;
+box-shadow:0 10px 30px rgba(0,0,0,.26);backdrop-filter:blur(4px);}
+.card h3{font-size:19px;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:10px;position:relative;}
+.card h3 .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 7px;}
+.card h3 .src{margin-left:auto;font-size:11px;color:rgba(157,188,178,.6);font-weight:400;}
+.card p{font-size:15.5px;color:var(--text);margin:0 0 10px;}
+.card p:last-child{margin-bottom:0;}
+.muted{color:var(--muted);}
+pre{background:#06100d;border:1px solid var(--line);border-radius:10px;padding:13px 16px;margin:12px 0;overflow-x:auto;}
+pre code{color:#a8e6d2;font-family:Consolas,Monaco,"Courier New",monospace;font-size:13.5px;line-height:1.7;white-space:pre;}
+.shot,.gallery{margin:16px 0 4px;}
+.shot img{width:auto;max-width:100%;max-height:min(62vh,560px);display:block;margin:0 auto;border-radius:11px;border:1px solid var(--line);cursor:zoom-in;box-shadow:0 8px 26px rgba(0,0,0,.35);}
+.shot figcaption{margin-top:8px;font-size:12px;color:var(--muted);}
+.ghead{font-size:12.5px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.badge{background:rgba(47,214,168,.16);color:var(--accent);border:1px solid rgba(47,214,168,.3);padding:1px 8px;border-radius:999px;font-size:11px;}
+.gmain{position:relative;background:#07110e;border-radius:11px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;min-height:120px;}
+.gmain img{width:auto;max-width:100%;max-height:min(62vh,560px);display:block;cursor:zoom-in;}
+.gmain button{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:none;
+background:rgba(8,20,17,.72);color:#dff5ee;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.gmain button:hover{background:rgba(47,214,168,.35);}
+.gprev{left:10px;} .gnext{right:10px;}
+.gcount{position:absolute;bottom:10px;right:12px;background:rgba(8,20,17,.8);color:#cfe9e0;font-size:12px;padding:3px 10px;border-radius:999px;}
+.gthumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:4px;}
+.gthumbs img{height:60px;flex:0 0 auto;border-radius:7px;opacity:.5;cursor:pointer;border:2px solid transparent;transition:opacity .2s,border-color .2s;}
+.gthumbs img:hover{opacity:.85;}
+.gthumbs img.on{opacity:1;border-color:var(--accent);}
+.tbl-wrap{overflow-x:auto;margin:14px 0;}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px;}
+th{background:rgba(47,214,168,.14);color:#fff;text-align:left;padding:10px 12px;border:1px solid var(--line);font-weight:600;}
+td{padding:9px 12px;border:1px solid var(--line);color:var(--text);}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02);}
+.end{position:relative;padding:96px 24px;text-align:center;background-image:linear-gradient(180deg,rgba(10,20,17,.9),rgba(6,14,12,.7)),url(assets/img/s45.jpg);background-size:cover;background-position:center;}
+.end h2{font-size:clamp(30px,5vw,46px);color:#fff;letter-spacing:3px;}
+.end h3{font-size:20px;color:#bfe6d8;margin-top:10px;font-weight:400;}
+.end p{margin:18px auto 0;max-width:620px;color:#a9d8c9;font-size:15px;}
+#top{position:fixed;right:20px;bottom:22px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);
+background:rgba(12,26,22,.9);color:#dff5ee;font-size:18px;cursor:pointer;z-index:80;display:none;}
+#top.show{display:block;}
+#lb{position:fixed;inset:0;background:rgba(3,8,7,.94);z-index:100;display:none;align-items:center;justify-content:center;}
+#lb.on{display:flex;}
+#lb img{max-width:94vw;max-height:88vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.7);}
+#lb .x,#lb .lp,#lb .ln{position:absolute;background:rgba(20,40,34,.8);border:1px solid var(--line);color:#dff5ee;border-radius:50%;
+width:44px;height:44px;cursor:pointer;font-size:20px;}
+#lb .x{top:18px;right:18px;} #lb .lp{left:18px;top:50%;transform:translateY(-50%);} #lb .ln{right:18px;top:50%;transform:translateY(-50%);}
+html.js .rv{opacity:0;transform:translateY(24px);}
+html.js .rv.in{opacity:1;transform:none;transition:opacity .6s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1);}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}html.js .rv{opacity:1;transform:none;transition:none;}}
+#menu{display:none;position:fixed;left:16px;bottom:22px;z-index:85;background:rgba(12,26,22,.92);border:1px solid var(--line);
+color:#dff5ee;border-radius:10px;padding:9px 14px;font-size:13px;cursor:pointer;}
+@media (max-width:980px){
+ aside{position:fixed;left:0;top:0;width:250px;background:#0b1714;border-right:1px solid var(--line);
+  transform:translateX(-100%);transition:transform .25s;z-index:86;padding-top:20px;}
+ aside.open{transform:none;}
+ #menu{display:block;}
+ .layout{padding:0 14px;} main{padding:22px 0 90px;} .card{padding:18px 16px;}
+ .hero{min-height:64vh;}
+}
+
+.dl{display:flex;align-items:center;gap:16px;margin:32px auto 0;max-width:580px;padding:18px 20px;
+background:rgba(10,25,21,.72);border:1px solid rgba(47,214,168,.35);border-radius:14px;text-align:left;
+box-shadow:0 10px 30px rgba(0,0,0,.3);}
+.dl .ico{width:44px;height:44px;flex:0 0 44px;border-radius:10px;background:rgba(47,214,168,.16);
+display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent);}
+.dl .txt{flex:1;min-width:0;}
+.dl .txt strong{display:block;color:#fff;font-size:15px;font-weight:600;}
+.dl .txt span{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;}
+.dl a{flex:0 0 auto;padding:10px 20px;border-radius:9px;background:var(--accent);color:#06231b;
+font-size:14px;font-weight:700;white-space:nowrap;transition:filter .2s,transform .2s;}
+.dl a:hover{filter:brightness(1.08);transform:translateY(-1px);text-decoration:none;}
+@media (max-width:560px){.dl{flex-wrap:wrap;}.dl a{width:100%;text-align:center;}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="hero"><h1>网站部署全流程操作指南</h1>
+<p>从「只能自己访问」到「全世界都能打开」——云服务器 + 域名 + 证书的完整实操路径</p>
+<div class="meta"><span>33 页 · 阿里云 ECS</span><span>含 40+ 张实操截图</span><span>逐章阅读 · 可放大</span></div></header>
+<div class="layout">
+<aside><div class="tt">目录</div><a href="#ch1"><span>01</span>部署原理</a><a href="#ch2"><span>02</span>正式发布方案</a><a href="#ch3"><span>03</span>购买云服务器</a><a href="#ch4"><span>04</span>初始化实例</a><a href="#ch5"><span>05</span>远程连接</a><a href="#ch6"><span>06</span>部署代码</a><a href="#ch7"><span>07</span>放行端口</a><a href="#ch8"><span>08</span>HTTPS 访问方案</a><a href="#ch9"><span>09</span>域名与备案</a><a href="#ch10"><span>10</span>SSL 证书 · 部署完成</a><a href="#ch11"><span>11</span>站点收录与推广</a></aside>
+<main><section class="chapter" id="ch1"><h2 class="ch-title"><span class="ch-num">01</span>部署原理</h2><article class="card rv" id="p2"><h3><span class="dot"></span>部署目的与必要性<span class="src">P2</span></h3><p style="text-align:left">部署网站的目的是使任意设备均可通过浏览器访问站点内容。</p><p style="text-align:left">本地开发阶段虽可在浏览器中预览，但访问地址 <a href="http://localhost:端口" target="_blank" rel="noopener">http://localhost:端口</a> 或 <a href="http://127.0.0.1:端口" target="_blank" rel="noopener">http://127.0.0.1:端口</a> 仅指向本机运行的程序，仅当前计算机可访问。</p><p style="text-align:left">因此，需将项目部署至具备公网 IP 的服务器，方可对外提供服务。</p><figure class="shot rv"><img src="assets/img/s3.jpg" alt="P2 示意图" loading="lazy"><figcaption>P2 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p3"><h3><span class="dot"></span>本地地址的局限性<span class="src">P3</span></h3><p style="text-align:left">若将上述本地地址发送给其他用户，对方无法访问。</p><p style="text-align:left">要解决此问题，必须将项目部署至公网服务器。</p><figure class="shot rv"><img src="assets/img/s4.jpg" alt="P3 示意图" loading="lazy"><figcaption>P3 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p4"><h3><span class="dot"></span>网站部署原理<span class="src">P4</span></h3><p style="text-align:left">即准备一台持续在线的服务器，运行后端程序并允许外部设备访问。</p><p style="text-align:left">类比：代码在本机运行时，浏览器可直接访问本机程序；部署后通过开放端口，允许外部设备访问。</p><p style="text-align:left">也可通过内网穿透实现外网访问，但该方式依赖中转服务器，存在带宽与稳定性限制，且不会为本机分配公网 IP。</p><p style="text-align:left">推荐采用云服务器，其自带公网 IP，配置简单、稳定性高，适合正式部署。</p></article><article class="card rv" id="p5"><h3><span class="dot"></span>网站类型与部署方式<span class="src">P5</span></h3><p style="text-align:left">按运行方式，网站分为静态网站与动态网站两类。</p><p style="text-align:left">静态网站：可直接托管至 GitHub Pages 等平台，操作简便、零成本；缺点是访问稳定性受平台限制。</p><p style="text-align:left">动态网站：包含前端与后端程序，约束较多，可通过云平台组合方案部署。</p><p style="text-align:left">通用方案：购买云服务器自行部署，适用范围最广，适合正式项目。</p></article></section><section class="chapter" id="ch2"><h2 class="ch-title"><span class="ch-num">02</span>正式发布方案</h2><article class="card rv" id="p6"><h3><span class="dot"></span>方案二：前端 + 后端正式发布<span class="src">P6</span></h3><p style="text-align:left">方案组成：云服务器 + 域名 + 证书</p><p style="text-align:left">推荐平台：阿里云 ECS、腾讯云 CVM（本指南以阿里云为例）</p><p style="text-align:left">控制台入口：<a href="https://home.console.aliyun.com" target="_blank" rel="noopener">https://home.console.aliyun.com</a></p><p style="text-align:left">阿里云 ECS 建站配套完善，更适用于网站部署场景。</p></article></section><section class="chapter" id="ch3"><h2 class="ch-title"><span class="ch-num">03</span>购买云服务器</h2><article class="card rv" id="p7"><h3><span class="dot"></span>登录与实名认证<span class="src">P7</span></h3><p style="text-align:left">使用支付宝账号登录并完成实名认证（扫码即可）。</p><figure class="gallery rv" data-n="2"><div class="ghead">P7 · 共 2 步 <span class="badge">逐项出现</span></div><div class="gmain"><img src="assets/img/s5.jpg" alt="P7 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s5.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s6.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article><article class="card rv" id="p8"><h3><span class="dot"></span>申请免费试用<span class="src">P8</span></h3><p style="text-align:left">ECS 需付费购买，新用户可申请免费试用，用于熟悉部署流程。</p><figure class="shot rv"><img src="assets/img/s7.jpg" alt="P8 示意图" loading="lazy"><figcaption>P8 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p9"><h3><span class="dot"></span>核对试用时长（720 小时）<span class="src">P9</span></h3><p style="text-align:left">点击「免费试用」，在弹出的配置页面中核对试用时长，需满足 720 小时（约 30 天）。</p><p style="text-align:left">每次调整配置后，系统都会实时计算并显示可试用时长。</p><figure class="shot rv"><img src="assets/img/s8.jpg" alt="P9 示意图" loading="lazy"><figcaption>P9 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p10"><h3><span class="dot"></span>选择实例配置<span class="src">P10</span></h3><p style="text-align:left">合理选择实例配置，可在满足业务需求的前提下有效控制成本。</p><figure class="shot rv"><img src="assets/img/s9.jpg" alt="P10 示意图" loading="lazy"><figcaption>P10 · 示意图（点击放大）</figcaption></figure><p style="text-align:left">仅自定义购买需选择实例架构，建议使用快速购买，以减少配置项。</p><p style="text-align:left">实例规格用途各异，个人建站选择第一项即可，其余规格适用于其他场景，可按需了解。</p></article><article class="card rv" id="p11"><h3><span class="dot"></span>实例规格：2 核 2G<span class="src">P11</span></h3><p style="text-align:left">「2 核 2G」指 vCPU 核数与内存容量；该规格不支持 MySQL，可改用文件型数据库（如 SQLite）。</p><p style="text-align:left">在不使用 MySQL 的前提下，2 核 2G 约可支撑 100 人同时在线。</p><p style="text-align:left">2 核 4G、2 核 8G 支持大型数据库，请按并发量选择。</p><figure class="gallery rv" data-n="2"><div class="ghead">P11 · 共 2 步</div><div class="gmain"><img src="assets/img/s10.jpg" alt="P11 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s10.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s11.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article><article class="card rv" id="p12"><h3><span class="dot"></span>镜像选择：Windows 与 Linux<span class="src">P12</span></h3><p style="text-align:left">Windows 镜像操作直观、灵活，但系统本身会占用部分算力。</p><figure class="gallery rv" data-n="2"><div class="ghead">P12 · 共 2 步</div><div class="gmain"><img src="assets/img/s12.jpg" alt="P12 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s12.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s13.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure><p style="text-align:left">Linux 镜像以命令行为主，上手难度略高，但系统资源占用极低，可将算力全部用于业务。</p></article><article class="card rv" id="p13"><h3><span class="dot"></span>地域选择与备案说明<span class="src">P13</span></h3><p style="text-align:left">地域决定用户与服务器的物理距离，距离越近访问越快；国内地域之间差异较小，可按需选择。</p><p style="text-align:left">选择中国香港及境外地域无需 ICP 备案；其他地域均需备案，周期约 10~20 天，且须先拥有域名。</p><p style="text-align:left">未完成备案前，可使用自签名证书，通过「公网 IP + 端口」方式临时访问。</p><figure class="shot rv"><img src="assets/img/s14.jpg" alt="P13 示意图" loading="lazy"><figcaption>P13 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p14"><h3><span class="dot"></span>带宽选择<span class="src">P14</span></h3><p style="text-align:left">该配置项决定用户从站点下载文件的速度，请结合实际业务需求选择。</p><figure class="shot rv"><img src="assets/img/s15.jpg" alt="P14 示意图" loading="lazy"><figcaption>P14 · 示意图（点击放大）</figcaption></figure></article></section><section class="chapter" id="ch4"><h2 class="ch-title"><span class="ch-num">04</span>初始化实例</h2><article class="card rv" id="p15"><h3><span class="dot"></span>设置实例密码<span class="src">P15</span></h3><p style="text-align:left">实例创建完成后，进入云服务器控制台：</p><p style="text-align:left">第一步（必做）：设置实例密码，该密码用于远程连接云服务器。</p><figure class="shot rv"><img src="assets/img/s16.jpg" alt="P15 示意图" loading="lazy"><figcaption>P15 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p16"><h3><span class="dot"></span>确认修改密码<span class="src">P16</span></h3><figure class="shot rv"><img src="assets/img/s17.jpg" alt="P16 示意图" loading="lazy"><figcaption>P16 · 示意图（点击放大）</figcaption></figure><p style="text-align:left">登录名保持默认，设置密码后点击「确认修改」。</p><p style="text-align:left">保持默认</p></article></section><section class="chapter" id="ch5"><h2 class="ch-title"><span class="ch-num">05</span>远程连接</h2><article class="card rv" id="p17"><h3><span class="dot"></span>远程桌面连接<span class="src">P17</span></h3><p style="text-align:left">复制实例公网 IP，打开 Windows 远程桌面连接（mstsc），输入 IP 后点击连接。首次登录需输入用户名与密码：用户名为重置密码处的登录名，密码为已设置的实例密码。</p><figure class="gallery rv" data-n="5"><div class="ghead">P17 · 共 5 步 <span class="badge">逐项出现</span></div><div class="gmain"><img src="assets/img/s18.jpg" alt="P17 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 5</span></div><div class="gthumbs"><img src="assets/img/s18.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s19.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"><img src="assets/img/s20.jpg" data-i="2" class="" alt="步骤 3" loading="lazy"><img src="assets/img/s21.jpg" data-i="3" class="" alt="步骤 4" loading="lazy"><img src="assets/img/s22.jpg" data-i="4" class="" alt="步骤 5" loading="lazy"></div></figure></article></section><section class="chapter" id="ch6"><h2 class="ch-title"><span class="ch-num">06</span>部署代码</h2><article class="card rv" id="p18"><h3><span class="dot"></span>上传项目代码<span class="src">P18</span></h3><p style="text-align:left">将本地已测试通过的项目代码上传至云服务器，建议先压缩以加快传输。</p><p style="text-align:left">部署方式有两种：使用宝塔面板，或使用命令行。</p><p style="text-align:left">宝塔面板（BT Panel）为国产可视化运维面板，支持 Linux 与 Windows，可一键部署 LNMP/LAMP 环境、管理数据库、申请 SSL 证书，适合新手及小型团队。</p><p style="text-align:left">常用 PM2 命令（Win+R 输入 cmd 执行）：</p><pre><code>pm2 start app.js 启动｜pm2 list 查看｜pm2 restart 重启｜pm2 stop 停止</code></pre><pre><code>pm2 delete 删除｜pm2 logs 查日志｜pm2 startup &amp;&amp; pm2 save 开机自启</code></pre><p style="text-align:left">命令行方式无需安装面板，灵活性更高。建议按项目实际情况生成部署命令，可借助 AI 分析项目所需指令，并提供完整目录结构以获得准确结果。部署前请确认已安装 Node.js 与 PM2。</p></article></section><section class="chapter" id="ch7"><h2 class="ch-title"><span class="ch-num">07</span>放行端口</h2><article class="card rv" id="p19"><h3><span class="dot"></span>放行项目端口<span class="src">P19</span></h3><p style="text-align:left">需在云服务器控制台放行项目端口。若项目端口为 3000，则放行 3000 端口：进入防火墙 → 入站规则 → 新建规则 → 选择「端口」→ 输入 3000 → 允许连接，其余步骤保持默认，名称可自定义。</p><figure class="gallery rv" data-n="7"><div class="ghead">P19 · 共 7 步 <span class="badge">逐项出现</span></div><div class="gmain"><img src="assets/img/s23.jpg" alt="P19 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 7</span></div><div class="gthumbs"><img src="assets/img/s23.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s24.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"><img src="assets/img/s25.jpg" data-i="2" class="" alt="步骤 3" loading="lazy"><img src="assets/img/s26.jpg" data-i="3" class="" alt="步骤 4" loading="lazy"><img src="assets/img/s27.jpg" data-i="4" class="" alt="步骤 5" loading="lazy"><img src="assets/img/s28.jpg" data-i="5" class="" alt="步骤 6" loading="lazy"><img src="assets/img/s29.jpg" data-i="6" class="" alt="步骤 7" loading="lazy"></div></figure></article></section><section class="chapter" id="ch8"><h2 class="ch-title"><span class="ch-num">08</span>HTTPS 访问方案</h2><article class="card rv" id="p20"><h3><span class="dot"></span>HTTPS 访问的两种方案<span class="src">P20</span></h3><p style="text-align:left">完成上一步后，可通过 <a href="https://公网IP:端口" target="_blank" rel="noopener">https://公网IP:端口</a> 访问站点。多数浏览器会拦截该地址，可选以下两种方案：自签名证书或在云服务器上部署 SSL 证书。</p><p style="text-align:left">自签名证书配置步骤</p><p style="text-align:left">可借助 AI 生成证书命令：按 Win+R 输入 cmd 执行，并按提示修改项目代码，确认输出无误即可。该方式下浏览器会提示「不安全」。</p><p style="text-align:left">SSL 证书为正式方案，需先完成域名购买方可申请与生效。</p></article></section><section class="chapter" id="ch9"><h2 class="ch-title"><span class="ch-num">09</span>域名与备案</h2><article class="card rv" id="p21"><h3><span class="dot"></span>购买域名<span class="src">P21</span></h3><p style="text-align:left">进入域名控制台，查询拟注册域名是否已被占用，未被占用即可购买。</p><figure class="gallery rv" data-n="2"><div class="ghead">P21 · 共 2 步 <span class="badge">逐项出现</span></div><div class="gmain"><img src="assets/img/s30.jpg" alt="P21 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s30.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s31.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article><article class="card rv" id="p22"><h3><span class="dot"></span>提交 ICP 备案<span class="src">P22</span></h3><p style="text-align:left">提交 ICP 备案申请，审核周期较长。备案期间建议不要登录云服务器，待备案通过后再进行相关操作。</p><p style="text-align:left">填写备案信息时，需按实际情况选择「个人」或「企业」主体；信息不实或内容违规将导致备案注销、站点封禁。</p><figure class="gallery rv" data-n="2"><div class="ghead">P22 · 共 2 步</div><div class="gmain"><img src="assets/img/s32.jpg" alt="P22 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s32.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s33.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article><article class="card rv" id="p23"><h3><span class="dot"></span>备案审核<span class="src">P23</span></h3><p style="text-align:left">按要求提交信息后进入备案审核流程，审核期间客服可能致电核对或要求修改信息，请注意接听。</p><figure class="shot rv"><img src="assets/img/s34.jpg" alt="P23 示意图" loading="lazy"><figcaption>P23 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p24"><h3><span class="dot"></span>备案通过<span class="src">P24</span></h3><p style="text-align:left">备案通过后，返回控制台首页，进入域名控制台。</p><figure class="shot rv"><img src="assets/img/s35.jpg" alt="P24 示意图" loading="lazy"><figcaption>P24 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p25"><h3><span class="dot"></span>进入域名列表<span class="src">P25</span></h3><p style="text-align:left">进入「域名管理 → 域名列表」，点击目标域名。</p><figure class="gallery rv" data-n="2"><div class="ghead">P25 · 共 2 步 <span class="badge">逐项出现</span></div><div class="gmain"><img src="assets/img/s36.jpg" alt="P25 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s36.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s37.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article><article class="card rv" id="p26"><h3><span class="dot"></span>添加解析记录<span class="src">P26</span></h3><p style="text-align:left">点击「域名解析 → 添加记录」。</p><figure class="gallery rv" data-n="2"><div class="ghead">P26 · 共 2 步</div><div class="gmain"><img src="assets/img/s38.jpg" alt="P26 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s38.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s39.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article><article class="card rv" id="p27"><h3><span class="dot"></span>填写解析信息<span class="src">P27</span></h3><p style="text-align:left">主机记录选 www 或 @</p><p style="text-align:left">记录值填写公网 IP</p><figure class="gallery rv" data-n="2"><div class="ghead">P27 · 共 2 步 <span class="badge">逐项出现</span></div><div class="gmain"><img src="assets/img/s40.jpg" alt="P27 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s40.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s41.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article></section><section class="chapter" id="ch10"><h2 class="ch-title"><span class="ch-num">10</span>SSL 证书 · 部署完成</h2><article class="card rv" id="p28"><h3><span class="dot"></span>申请 SSL 证书<span class="src">P28</span></h3><p style="text-align:left">完成备案后即可申请 SSL 证书。可在云服务器上通过命令申请免费证书并配置自动续期；申请过程中会出现若干英文选项，可借助 AI 查询对应含义。</p><p style="text-align:left">证书签发且后端程序正常运行后，网站部署即告完成。</p><p style="text-align:left">环境配置仅首次较为繁琐，后续更新维护相对简单，建议掌握运维工具以提升维护效率。</p></article></section><section class="chapter" id="ch11"><h2 class="ch-title"><span class="ch-num">11</span>站点收录与推广</h2><article class="card rv" id="p29"><h3><span class="dot"></span>站点收录与推广<span class="src">P29</span></h3><p style="text-align:left">完成部署后，站点仅能通过完整域名（如 www.example.com）直接访问，无法通过中文关键词在搜索引擎中检索到。</p><p style="text-align:left">例如搜索“腾讯”“阿里”等，就可以找到对应官方网站。</p><p style="text-align:left">如需被搜索引擎收录，需在各搜索引擎的站长平台分别提交站点。</p><div class="tbl-wrap rv"><table><thead><tr><th>浏览器</th><th>站长平台</th><th>入口地址</th></tr></thead><tbody><tr><td>Chrome（默认百度）</td><td>百度搜索资源平台</td><td><a href="https://ziyuan.baidu.com" target="_blank" rel="noopener">https://ziyuan.baidu.com</a></td></tr><tr><td>Edge</td><td>Bing 站长工具</td><td><a href="https://www.bing.com/webmasters" target="_blank" rel="noopener">https://www.bing.com/webmasters</a></td></tr><tr><td>360 浏览器</td><td>360 站长平台</td><td><a href="https://zhanzhang.so.com" target="_blank" rel="noopener">https://zhanzhang.so.com</a></td></tr><tr><td>QQ 浏览器</td><td>搜狗站长平台</td><td><a href="https://zhanzhang.sogou.com" target="_blank" rel="noopener">https://zhanzhang.sogou.com</a></td></tr><tr><td>UC 浏览器（移动端）</td><td>神马站长平台</td><td><a href="https://zhanzhang.sm.cn" target="_blank" rel="noopener">https://zhanzhang.sm.cn</a></td></tr></tbody></table></div></article><article class="card rv" id="p30"><h3><span class="dot"></span>注册并登录站长平台<span class="src">P30</span></h3><p style="text-align:left">注册并登录账号，进入用户中心，点击「站点管理」。</p><figure class="shot rv"><img src="assets/img/s42.jpg" alt="P30 示意图" loading="lazy"><figcaption>P30 · 示意图（点击放大）</figcaption></figure></article><article class="card rv" id="p31"><h3><span class="dot"></span>添加网站与验证<span class="src">P31</span></h3><p style="text-align:left">添加网站：输入域名并填写站点信息。验证方式可选文件验证或代码验证，前者需将校验文件置于项目根目录并重启服务，两种方式可按需选择。</p><figure class="gallery rv" data-n="2"><div class="ghead">P31 · 共 2 步</div><div class="gmain"><img src="assets/img/s43.jpg" alt="P31 步骤 1" loading="lazy"><button class="gprev" aria-label="上一张">&#10094;</button><button class="gnext" aria-label="下一张">&#10095;</button><span class="gcount">1 / 2</span></div><div class="gthumbs"><img src="assets/img/s43.jpg" data-i="0" class="on" alt="步骤 1" loading="lazy"><img src="assets/img/s44.jpg" data-i="1" class="" alt="步骤 2" loading="lazy"></div></figure></article><article class="card rv" id="p32"><h3><span class="dot"></span>其他平台流程<span class="src">P32</span></h3><p style="text-align:left">其余平台流程相同，仅填写信息略有差异。神马平台的抓取机制与其他平台不同，收录时可能出现异常。</p></article></section></main>
+</div>
+<footer class="end"><h2>Q&amp;A</h2><h3>感谢阅读</h3>
+<p>关于网站部署、架构设计或性能优化的任何疑问，欢迎随时提出，共同探讨交流。</p><div class="dl"><div class="ico">&#8681;</div><div class="txt"><strong>网站部署全流程操作指南.pptx</strong><span>33 页 · 阿里云 ECS 实操 · 含全部截图 · 14.3 MB</span></div><a href="assets/website-deployment-guide.pptx" download>下载 PPT</a></div></footer>
+<button id="top" aria-label="回到顶部">&#8593;</button>
+<button id="menu">目录</button>
+<div id="lb"><img src="" alt="放大预览"><button class="x" aria-label="关闭">&#10005;</button><button class="lp" aria-label="上一张">&#10094;</button><button class="ln" aria-label="下一张">&#10095;</button></div>
+<script>
+(function(){
+  var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // reveal
+  var rvs = document.querySelectorAll('.rv');
+  if(!rm && 'IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:.12, rootMargin:'0px 0px -40px 0px'});
+    rvs.forEach(function(el){ io.observe(el); });
+  } else {
+    rvs.forEach(function(el){ el.classList.add('in'); });
+  }
+  // gallery
+  document.querySelectorAll('.gallery').forEach(function(g){
+    var imgs = Array.prototype.slice.call(g.querySelectorAll('.gthumbs img'));
+    var main = g.querySelector('.gmain img');
+    var cnt = g.querySelector('.gcount');
+    var cur = 0;
+    function go(i){
+      cur = (i + imgs.length) % imgs.length;
+      main.src = imgs[cur].src;
+      main.alt = '步骤 ' + (cur+1);
+      cnt.textContent = (cur+1) + ' / ' + imgs.length;
+      imgs.forEach(function(t,k){ t.className = k===cur ? 'on' : ''; });
+      var th = imgs[cur];
+      var box = g.querySelector('.gthumbs');
+      if(box && th.offsetLeft < box.scrollLeft) box.scrollLeft = th.offsetLeft - 8;
+      else if(box && th.offsetLeft + th.offsetWidth > box.scrollLeft + box.clientWidth)
+        box.scrollLeft = th.offsetLeft + th.offsetWidth - box.clientWidth + 8;
+    }
+    imgs.forEach(function(t,i){ t.addEventListener('click', function(e){ e.stopPropagation(); go(i); }); });
+    g.querySelector('.gprev').addEventListener('click', function(e){ e.stopPropagation(); go(cur-1); });
+    g.querySelector('.gnext').addEventListener('click', function(e){ e.stopPropagation(); go(cur+1); });
+    g._go = go; g._cur = function(){ return cur; };
+    g._imgs = imgs;
+  });
+  // lightbox
+  var lb = document.getElementById('lb'), lbi = lb.querySelector('img');
+  var lbg = null;
+  function openLb(g, i){
+    lbg = g;
+    lb._i = i;
+    lbi.src = g._imgs[i].src;
+    lb.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLb(){ lb.classList.remove('on'); document.body.style.overflow = ''; }
+  function stepLb(d){
+    if(!lbg) return;
+    var n = lbg._imgs.length;
+    lb._i = (lb._i + d + n) % n;
+    lbi.src = lbg._imgs[lb._i].src;
+  }
+  document.querySelectorAll('.gallery .gmain img, .shot img').forEach(function(im){
+    im.addEventListener('click', function(e){
+      e.stopPropagation();
+      var g = im.closest('.gallery');
+      if(g){ openLb(g, g._cur()); }
+      else { lb._single = im; lbg = null; lbi.src = im.src; lb.classList.add('on'); document.body.style.overflow='hidden'; }
+    });
+  });
+  lb.querySelector('.x').addEventListener('click', closeLb);
+  lb.querySelector('.lp').addEventListener('click', function(e){ e.stopPropagation(); if(lbg) stepLb(-1); });
+  lb.querySelector('.ln').addEventListener('click', function(e){ e.stopPropagation(); if(lbg) stepLb(1); });
+  lb.addEventListener('click', function(e){ if(e.target === lb || e.target === lbi) closeLb(); });
+  document.addEventListener('keydown', function(e){
+    if(!lb.classList.contains('on')) return;
+    if(e.key === 'Escape') closeLb();
+    else if(e.key === 'ArrowLeft') stepLb(-1);
+    else if(e.key === 'ArrowRight') stepLb(1);
+  });
+  // progress + toc spy + top
+  var bar = document.getElementById('progress'), top = document.getElementById('top');
+  var links = Array.prototype.slice.call(document.querySelectorAll('aside a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function onScroll(){
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    top.className = window.scrollY > 500 ? 'show' : '';
+    var idx = 0;
+    for(var i=0;i<secs.length;i++){ if(secs[i] && secs[i].getBoundingClientRect().top <= 120) idx = i; }
+    links.forEach(function(a,i){ a.className = i===idx ? 'on' : ''; });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  top.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  var aside = document.querySelector('aside'), menu = document.getElementById('menu');
+  menu.addEventListener('click', function(){ aside.classList.toggle('open'); });
+  links.forEach(function(a){ a.addEventListener('click', function(){ aside.classList.remove('open'); }); });
+})();
+</script>
+</body>
+</html>
